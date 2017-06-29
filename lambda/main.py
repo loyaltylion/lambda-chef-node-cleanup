@@ -27,6 +27,8 @@ LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 REGION= local_config.REGION
 CHEF_SERVER_URL = local_config.CHEF_SERVER_URL
+S3_BUCKET_NAME = local_config.S3_BUCKET_NAME
+S3_KEY_NAME = local_config.S3_KEY_NAME
 USERNAME = local_config.USERNAME
 VERIFY_SSL = local_config.VERIFY_SSL
 DEBUG = local_config.DEBUG
@@ -48,12 +50,10 @@ def get_instance_id(event):
 def get_pem():
     """Decrypt the Ciphertext Blob to get USERNAME's pem file"""
     try:
-        with open('encrypted_pem.txt', 'r') as encrypted_pem:
-            pem_file = encrypted_pem.read()
-
-        kms = boto3.client('kms', region_name=REGION)
-        return kms.decrypt(CiphertextBlob=b64decode(pem_file))['Plaintext']
-    except (IOError, ClientError, KeyError) as err:
+        s3 = boto3.resource('s3')
+        object = s3.Object(S3_BUCKET_NAME, S3_KEY_NAME)
+        return object.get()['Body'].read()
+    except (IOError, ClientError, KeyError, AttributeError) as err:
         LOGGER.error(err)
         return False
 
