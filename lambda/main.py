@@ -78,7 +78,7 @@ def handle(event, _context):
                 try:
                     LOGGER.info('About to delete the node named - ' + node.name)
                     LOGGER.info('About to delete the client named - ' + client.name)
-                    if not debug:
+                    if not DEBUG:
                       node.delete()
                       LOGGER.info('===Node Delete: SUCCESS===')
                       client.delete()
